@@ -1,7 +1,7 @@
 #[derive(PartialEq)]
 pub enum DataItem<'a> {
     UInt(u64),       // Major 0
-    NUint(i128),      // Major 1
+    NUint(i128),     // Major 1
     Bytes(&'a [u8]), // Major 2
     Text(&'a [u8]),  // Major 3
     Array(u64),      // Major 4

@@ -1,5 +1,5 @@
-use half::f16;
 use crate::DataItem;
+use half::f16;
 
 fn encode_array(x: u64) -> Vec<u8> {
     let mut buf: [u8; 9] = [0; 9];
@@ -73,11 +73,11 @@ fn encode_u64(x: u64) -> Vec<u8> {
     return buf.to_vec();
 }
 
-fn encode_nu64(x:i128) -> Vec<u8> {
+fn encode_nu64(x: i128) -> Vec<u8> {
     let mut buf: [u8; 9] = [0; 9];
     if x > i8::MIN as i128 {
         if x >= -24 {
-            return vec![((x ^ 0xFF) + 0x20) as u8]
+            return vec![((x ^ 0xFF) + 0x20) as u8];
         }
         buf[0] = 0x38;
         buf[1] = (x ^ 0xFF) as u8;
@@ -117,9 +117,9 @@ fn encode_f64(x: f64) -> Vec<u8> {
         let bytes = tmp.to_be_bytes();
         buf[0] = 0xf9;
         for i in 0..bytes.len() {
-            buf[i+1] = bytes[i];
+            buf[i + 1] = bytes[i];
         }
-        return buf[0..3].to_vec()
+        return buf[0..3].to_vec();
     }
 
     let tmp: f32 = x as f32;
@@ -128,26 +128,26 @@ fn encode_f64(x: f64) -> Vec<u8> {
         let bytes = tmp.to_be_bytes();
         buf[0] = 0xfa;
         for i in 0..bytes.len() {
-            buf[i+1] = bytes[i];
+            buf[i + 1] = bytes[i];
         }
-        return buf[0..5].to_vec()
+        return buf[0..5].to_vec();
     }
 
     let bytes = x.to_be_bytes();
     buf[0] = 0xfb;
     for i in 0..bytes.len() {
-        buf[i+1] = bytes[i];
+        buf[i + 1] = bytes[i];
     }
     return buf.to_vec();
 }
 
 fn encode_simple_val(x: u8) -> Vec<u8> {
     match x {
-        20 => vec![0xf4],   // false
-        21 => vec![0xf5],   // true
-        22 => vec![0xf6],   // null
-        23 => vec![0xf7],   // undefined
-        31 => vec![0xFF],   // break
+        20 => vec![0xf4], // false
+        21 => vec![0xf5], // true
+        22 => vec![0xf6], // null
+        23 => vec![0xf7], // undefined
+        31 => vec![0xFF], // break
         _ => vec![],
     }
 }
@@ -159,11 +159,11 @@ pub fn encode(x: DataItem) -> Vec<u8> {
         DataItem::Array(x) => encode_array(x),
         DataItem::Float(x) => encode_f64(x),
         DataItem::Simple(x) => encode_simple_val(x),
-        _ => todo!()
+        _ => todo!(),
     }
 }
 
-pub fn convert_vec_to_val (x: Vec<u8>) -> u128 {
+pub fn convert_vec_to_val(x: Vec<u8>) -> u128 {
     let mut res: u128 = 0;
     for el in x {
         res = res << 8 | (el as u128);
@@ -177,7 +177,6 @@ fn test_encode_single_u8() {
     assert!(convert_vec_to_val(encode(DataItem::UInt(1))) == 0x01);
     assert!(convert_vec_to_val(encode(DataItem::UInt(10))) == 0x0a);
     assert!(convert_vec_to_val(encode(DataItem::UInt(23))) == 0x17);
-
 }
 
 #[test]
@@ -192,7 +191,7 @@ fn test_encode_u16() {
     assert!(convert_vec_to_val(encode(DataItem::UInt(1000))) == 0x1903e8);
 }
 
-   #[test]
+#[test]
 fn test_encode_u32() {
     assert!(convert_vec_to_val(encode(DataItem::UInt(1000000))) == 0x1a000f4240);
 }
@@ -200,9 +199,8 @@ fn test_encode_u32() {
 #[test]
 fn test_encode_u64() {
     assert!(convert_vec_to_val(encode(DataItem::UInt(1000000000000))) == 0x1b000000e8d4a51000);
-    assert!(convert_vec_to_val(encode(DataItem::UInt(u64::MAX)))== 0x1bffffffffffffffff);
+    assert!(convert_vec_to_val(encode(DataItem::UInt(u64::MAX))) == 0x1bffffffffffffffff);
 }
-
 
 #[test]
 fn test_encode_single_nu8() {
@@ -228,7 +226,9 @@ fn test_encode_nu32() {
 
 #[test]
 fn test_encode_nu64() {
-    assert!(convert_vec_to_val(encode(DataItem::NUint(-18446744073709551616))) == 0x3bffffffffffffffff);
+    assert!(
+        convert_vec_to_val(encode(DataItem::NUint(-18446744073709551616))) == 0x3bffffffffffffffff
+    );
 }
 
 #[test]
@@ -278,4 +278,3 @@ fn test_encode_array() {
         }
     }
 }
-

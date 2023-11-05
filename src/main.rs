@@ -1,6 +1,6 @@
 mod encoder;
-use encoder::encode;
 use encoder::convert_vec_to_val;
+use encoder::encode;
 
 mod cbor;
 use cbor::DataItem;
@@ -23,8 +23,6 @@ fn encode_array() -> Vec<u8> {
     }
     return cbor_enc;
 }
-
-
 
 fn main() {
     let cbor_enc: Vec<u8> = encode_array();
