@@ -1,4 +1,4 @@
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum DataItem<'a> {
     UInt(u64),       // Major 0
     NUint(i128),     // Major 1
@@ -19,7 +19,7 @@ impl DataItem<'_> {
     pub fn to_string(&self) -> String {
         match *self {
             DataItem::UInt(y) => y.to_string(),
-            DataItem::NUint(y) => y.to_string(),
+            DataItem::NUint(y) => format!("-{:}", y),
             DataItem::Bytes(y) => format!("\'{:}\'", String::from_utf8_lossy(y).into_owned()),
             DataItem::Text(y) => format!("\"{:}\"", String::from_utf8_lossy(y).into_owned()),
             DataItem::Array(y) => format!("Array({:})", y),
