@@ -1,16 +1,5 @@
 use half::f16;
-
-pub enum DataItem {
-    UInt(u64), // Major 0
-    NUint(i128), // Major 1
-    //Bytes(length, rawbytes<'a>), // Major 2
-    //Text(length, &'a str), // Major 3
-    Array(u64), // Major 4
-    //Map<Key, Value>(length, &'a [(Key, Value)]), // Major 5
-    //Tag(tag, DataItem<'a>), // Major 6
-    Float(f64), // Major 7
-    Simple(u8), // Major 7
-}
+use crate::DataItem;
 
 fn encode_array(x: u64) -> Vec<u8> {
     let mut buf: [u8; 9] = [0; 9];
@@ -170,10 +159,11 @@ pub fn encode(x: DataItem) -> Vec<u8> {
         DataItem::Array(x) => encode_array(x),
         DataItem::Float(x) => encode_f64(x),
         DataItem::Simple(x) => encode_simple_val(x),
+        _ => todo!()
     }
 }
 
-fn convert_vec_to_val (x: Vec<u8>) -> u128 {
+pub fn convert_vec_to_val (x: Vec<u8>) -> u128 {
     let mut res: u128 = 0;
     for el in x {
         res = res << 8 | (el as u128);
