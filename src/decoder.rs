@@ -65,7 +65,7 @@ pub fn decode(raw: &[u8]) -> (DataItem, usize) {
 
     match (major, additional_info) {
         (0, _) => (DataItem::UInt(argument), bytes_consumed),
-        (1, _) => (DataItem::NUint(argument + 1), bytes_consumed),
+        (1, _) => (DataItem::NUint(argument as i128 + 1), bytes_consumed),
         (2, 0..=23) => {
             let bytes = &raw[bytes_consumed..=additional_info.into()];
             bytes_consumed += additional_info as usize;
