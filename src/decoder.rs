@@ -43,19 +43,19 @@ pub fn decode(raw: &[u8]) -> (DataItem, usize) {
         24 => {
             bytes_consumed += 1;
             raw[1].into()
-        },
+        }
         25 => {
             bytes_consumed += 2;
             bytes_to_u64(&raw[1..=2])
-        },
+        }
         26 => {
             bytes_consumed += 4;
             bytes_to_u64(&raw[1..=4])
-        },
+        }
         27 => {
             bytes_consumed += 8;
             bytes_to_u64(&raw[1..=8])
-        },
+        }
         28 => panic!("Malformed CBOR reserved values"),
         29 => panic!("Malformed CBOR reserved values"),
         30 => panic!("Malformed CBOR reserved values"),
@@ -70,7 +70,7 @@ pub fn decode(raw: &[u8]) -> (DataItem, usize) {
             let bytes = &raw[bytes_consumed..=additional_info.into()];
             bytes_consumed += additional_info as usize;
             (DataItem::Bytes(bytes), bytes_consumed)
-        },
+        }
         (2, _) => todo!(),
         (3, 0..=23) => {
             let bytes = &raw[bytes_consumed..=additional_info.into()];
@@ -80,10 +80,7 @@ pub fn decode(raw: &[u8]) -> (DataItem, usize) {
         (3, _) => todo!(),
         (4, _) => (DataItem::Array(argument), bytes_consumed),
         (5, _) => todo!(),
-        (6, _) => {
-
-            (DataItem::Tag(argument), bytes_consumed)
-        },
+        (6, _) => (DataItem::Tag(argument), bytes_consumed),
         (7, 0..=23) => (DataItem::Simple(argument as u8), bytes_consumed),
         (7, 25) => (DataItem::Float(f16_to_f64(argument as u16)), bytes_consumed),
         (7, 26) => (DataItem::Float(f64::from(argument as u32)), bytes_consumed),
@@ -111,7 +108,7 @@ impl CborContext<'_> {
     }
 
     pub fn has_next(&self) -> bool {
-        self.state[self.depth] > 0 
+        self.state[self.depth] > 0
     }
 
     pub fn next(&mut self) -> Option<DataItem> {
