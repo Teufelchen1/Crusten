@@ -1,6 +1,6 @@
-//type length = u64;
-//type rawbytes<'a> = &'a [u8];
-//type tag = u64;
+mod encoder;
+use encoder::encode;
+use encoder::DataItem;
 
 mod cbor;
 use cbor::DataItem;
