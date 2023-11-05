@@ -152,7 +152,7 @@ fn encode_simple_val(x: u8) -> Vec<u8> {
     }
 }
 
-pub fn encode(x: DataItem) -> Vec<u8> {
+pub fn encode_dataitem(x: DataItem) -> Vec<u8> {
     match x {
         DataItem::UInt(x) => encode_u64(x),
         DataItem::NUint(x) => encode_nu64(x),
@@ -163,7 +163,16 @@ pub fn encode(x: DataItem) -> Vec<u8> {
     }
 }
 
-pub fn convert_vec_to_val(x: Vec<u8>) -> u128 {
+pub fn encode_dataitem_vector(data: Vec<DataItem>) -> Vec<u8> {
+    let mut tmp: Vec<u8> = Vec::new();
+
+    for el in data {
+        tmp.append(&mut encode_dataitem(el));
+    }
+    return tmp;
+}
+
+fn convert_vec_to_val(x: Vec<u8>) -> u128 {
     let mut res: u128 = 0;
     for el in x {
         res = res << 8 | (el as u128);
@@ -173,108 +182,108 @@ pub fn convert_vec_to_val(x: Vec<u8>) -> u128 {
 
 #[test]
 fn test_encode_single_u8() {
-    assert!(convert_vec_to_val(encode(DataItem::UInt(0))) == 0x00);
-    assert!(convert_vec_to_val(encode(DataItem::UInt(1))) == 0x01);
-    assert!(convert_vec_to_val(encode(DataItem::UInt(10))) == 0x0a);
-    assert!(convert_vec_to_val(encode(DataItem::UInt(23))) == 0x17);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::UInt(0))) == 0x00);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::UInt(1))) == 0x01);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::UInt(10))) == 0x0a);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::UInt(23))) == 0x17);
 }
 
 #[test]
 fn test_encode_two_byte_u8() {
-    assert!(convert_vec_to_val(encode(DataItem::UInt(24))) == 0x1818);
-    assert!(convert_vec_to_val(encode(DataItem::UInt(25))) == 0x1819);
-    assert!(convert_vec_to_val(encode(DataItem::UInt(100))) == 0x1864);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::UInt(24))) == 0x1818);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::UInt(25))) == 0x1819);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::UInt(100))) == 0x1864);
 }
 
 #[test]
 fn test_encode_u16() {
-    assert!(convert_vec_to_val(encode(DataItem::UInt(1000))) == 0x1903e8);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::UInt(1000))) == 0x1903e8);
 }
 
 #[test]
 fn test_encode_u32() {
-    assert!(convert_vec_to_val(encode(DataItem::UInt(1000000))) == 0x1a000f4240);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::UInt(1000000))) == 0x1a000f4240);
 }
 
 #[test]
 fn test_encode_u64() {
-    assert!(convert_vec_to_val(encode(DataItem::UInt(1000000000000))) == 0x1b000000e8d4a51000);
-    assert!(convert_vec_to_val(encode(DataItem::UInt(u64::MAX))) == 0x1bffffffffffffffff);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::UInt(1000000000000))) == 0x1b000000e8d4a51000);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::UInt(u64::MAX))) == 0x1bffffffffffffffff);
 }
 
 #[test]
 fn test_encode_single_nu8() {
-    assert!(convert_vec_to_val(encode(DataItem::NUint(-1))) == 0x20);
-    assert!(convert_vec_to_val(encode(DataItem::NUint(-10))) == 0x29);
-    assert!(convert_vec_to_val(encode(DataItem::NUint(-24))) == 0x37);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::NUint(-1))) == 0x20);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::NUint(-10))) == 0x29);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::NUint(-24))) == 0x37);
 }
 
 #[test]
 fn test_encode_two_byte_nu8() {
-    assert!(convert_vec_to_val(encode(DataItem::NUint(-100))) == 0x3863);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::NUint(-100))) == 0x3863);
 }
 
 #[test]
 fn test_encode_nu16() {
-    assert!(convert_vec_to_val(encode(DataItem::NUint(-1000))) == 0x3903e7);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::NUint(-1000))) == 0x3903e7);
 }
 
 #[test]
 fn test_encode_nu32() {
-    assert!(convert_vec_to_val(encode(DataItem::NUint(-1000000))) == 0x3a000f423f);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::NUint(-1000000))) == 0x3a000f423f);
 }
 
 #[test]
 fn test_encode_nu64() {
     assert!(
-        convert_vec_to_val(encode(DataItem::NUint(-18446744073709551616))) == 0x3bffffffffffffffff
+        convert_vec_to_val(encode_dataitem(DataItem::NUint(-18446744073709551616))) == 0x3bffffffffffffffff
     );
 }
 
 #[test]
 fn test_encode_f16() {
-    assert!(convert_vec_to_val(encode(DataItem::Float(0.0))) == 0xf90000);
-    assert!(convert_vec_to_val(encode(DataItem::Float(-0.0))) == 0xf98000);
-    assert!(convert_vec_to_val(encode(DataItem::Float(1.0))) == 0xf93c00);
-    assert!(convert_vec_to_val(encode(DataItem::Float(1.5))) == 0xf93e00);
-    assert!(convert_vec_to_val(encode(DataItem::Float(65504.0))) == 0xf97bff);
-    assert!(convert_vec_to_val(encode(DataItem::Float(-4.0))) == 0xf9c400);
-    assert!(convert_vec_to_val(encode(DataItem::Float(5.960464477539063e-8))) == 0xf90001);
-    assert!(convert_vec_to_val(encode(DataItem::Float(0.00006103515625))) == 0xf90400);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(0.0))) == 0xf90000);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(-0.0))) == 0xf98000);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(1.0))) == 0xf93c00);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(1.5))) == 0xf93e00);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(65504.0))) == 0xf97bff);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(-4.0))) == 0xf9c400);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(5.960464477539063e-8))) == 0xf90001);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(0.00006103515625))) == 0xf90400);
 }
 
 #[test]
 fn test_encode_f32() {
-    assert!(convert_vec_to_val(encode(DataItem::Float(100000.0))) == 0xfa47c35000);
-    assert!(convert_vec_to_val(encode(DataItem::Float(3.4028234663852886e+38))) == 0xfa7f7fffff);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(100000.0))) == 0xfa47c35000);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(3.4028234663852886e+38))) == 0xfa7f7fffff);
 }
 
 #[test]
 fn test_encode_f64() {
-    assert!(convert_vec_to_val(encode(DataItem::Float(1.1))) == 0xfb3ff199999999999a);
-    assert!(convert_vec_to_val(encode(DataItem::Float(1.0e+300))) == 0xfb7e37e43c8800759c);
-    assert!(convert_vec_to_val(encode(DataItem::Float(-4.1))) == 0xfbc010666666666666);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(1.1))) == 0xfb3ff199999999999a);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(1.0e+300))) == 0xfb7e37e43c8800759c);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Float(-4.1))) == 0xfbc010666666666666);
 }
 
 #[test]
 fn test_encode_array_size() {
-    assert!(convert_vec_to_val(encode(DataItem::Array(0))) == 0x80);
-    assert!(convert_vec_to_val(encode(DataItem::Array(23))) == 0x97);
-    assert!(convert_vec_to_val(encode(DataItem::Array(24))) == 0x9818);
-    assert!(convert_vec_to_val(encode(DataItem::Array(1000))) == 0x9903e8);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Array(0))) == 0x80);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Array(23))) == 0x97);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Array(24))) == 0x9818);
+    assert!(convert_vec_to_val(encode_dataitem(DataItem::Array(1000))) == 0x9903e8);
 }
 
 #[test]
 fn test_encode_array() {
     let arr: [[u16; 2]; 3] = [[0, 1], [2, 3], [4, 5]];
     let mut cbor_enc: Vec<u8> = Vec::new();
-    cbor_enc.append(&mut encode(DataItem::Array(arr.len() as u64)));
+    cbor_enc.append(&mut encode_dataitem(DataItem::Array(arr.len() as u64)));
 
     for el in arr {
-        cbor_enc.append(&mut encode(DataItem::Array(arr[0].len() as u64)));
+        cbor_enc.append(&mut encode_dataitem(DataItem::Array(arr[0].len() as u64)));
 
         for e in el {
-            cbor_enc.append(&mut encode(DataItem::UInt(e as u64)));
+            cbor_enc.append(&mut encode_dataitem(DataItem::UInt(e as u64)));
         }
     }
 }
